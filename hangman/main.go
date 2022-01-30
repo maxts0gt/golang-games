@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"time"
 	"unicode"
@@ -22,12 +23,16 @@ var dictionary = []string{
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	randomWord := getRandomWord()
-	randomWord = "United States of America"
 	guessedLetters := initializeGuessedLetters(randomWord)
-	printGameState(randomWord, guessedLetters)
-	guessedLetters['s'] = true
-	printGameState(randomWord, guessedLetters)
+	hangmanState := 0
+	printGameState(randomWord, guessedLetters, hangmanState)
 
+}
+
+func printGameState(randomWord string, guessedLetters map[rune]bool, hangmanState int) {
+	fmt.Println(getGuessingProgress(randomWord, guessedLetters))
+	fmt.Print(" ")
+	fmt.Println(getHangmanParts(hangmanState))
 }
 
 func initializeGuessedLetters(randomWord string) map[rune]bool {
@@ -42,16 +47,29 @@ func getRandomWord() string {
 	return wordToGuess
 }
 
-func printGameState(randomWord string, guessedLetters map[rune]bool) {
+func getGuessingProgress(randomWord string, guessedLetters map[rune]bool) string {
+
+	result := ""
+
 	for _, ch := range randomWord {
 		if ch == ' ' {
-			fmt.Print(" ")
+			result += " "
 		} else if guessedLetters[unicode.ToLower(ch)] {
-			fmt.Printf("%c", ch)
+			result += fmt.Sprintf("%c", ch)
 		} else {
-			fmt.Printf("_")
+			result += "_"
 		}
 
-		fmt.Print(" ")
+		result += " "
+
 	}
+	return result
+}
+
+func getHangmanParts(hangmanState int) string {
+	data, err := ioutil.ReadFile(fmt.Sprintf("states/hangman%d", hangmanState))
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
 }
