@@ -26,6 +26,7 @@ var dictionary = []string{
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+
 	randomWord := getRandomWord()
 	guessedLetters := initializeGuessedLetters(randomWord)
 	hangmanState := 0
@@ -36,14 +37,19 @@ func main() {
 			fmt.Println("Invalid input. Please use letters only.")
 			continue
 		}
+		letter := rune(input[0])
+		if isCorrectWord(randomWord, letter) {
+			guessedLetters[letter] = true
+		} else {
+			hangmanState++
+		}
 	}
 
 }
 
-func printGameState(randomWord string, guessedLetters map[rune]bool, hangmanState int) {
-	fmt.Println(getGuessingProgress(randomWord, guessedLetters))
-	fmt.Print(" ")
-	fmt.Println(getHangmanParts(hangmanState))
+func getRandomWord() string {
+	wordToGuess := dictionary[rand.Intn(len(dictionary))]
+	return wordToGuess
 }
 
 func initializeGuessedLetters(randomWord string) map[rune]bool {
@@ -53,9 +59,10 @@ func initializeGuessedLetters(randomWord string) map[rune]bool {
 	return guessedLetters
 }
 
-func getRandomWord() string {
-	wordToGuess := dictionary[rand.Intn(len(dictionary))]
-	return wordToGuess
+func printGameState(randomWord string, guessedLetters map[rune]bool, hangmanState int) {
+	fmt.Println(getGuessingProgress(randomWord, guessedLetters))
+	fmt.Print(" ")
+	fmt.Println(getHangmanParts(hangmanState))
 }
 
 func getGuessingProgress(randomWord string, guessedLetters map[rune]bool) string {
@@ -93,4 +100,8 @@ func readInput() string {
 	}
 
 	return strings.TrimSpace(input)
+}
+
+func isCorrectWord(randomWord string, letter rune) bool {
+	return strings.ContainsRune(randomWord, letter)
 }
